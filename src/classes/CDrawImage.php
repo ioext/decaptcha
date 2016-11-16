@@ -76,7 +76,7 @@ class CDrawImage
 		imagefilledrectangle( $oOutputImg, 0, 0, 0, $nImgHeight - 1, $arrBorderColor );
 		imagefilledrectangle( $oOutputImg, 0, $nImgHeight - 1, $nImgWidth, $nImgHeight - 1, $arrBorderColor );
 
-		$sFontPath	= dirname( __FILE__ ) . '/fonts/';
+		$sFontPath	= dirname( dirname( __FILE__ ) ) . '/fonts/';
 
 		$nMinAngle	= -35;
 		$nMaxAngle	= 35;
