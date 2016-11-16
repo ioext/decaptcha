@@ -53,16 +53,16 @@ class CCaptcha
 		$nImgWidth	= intval( $nImgWidth );
 		$nImgHeight	= intval( $nImgHeight );
 
-		if ( 'refresh' == $sOp )
-		{
-			//
-			//	output a random string
-			//
-			echo $this->GenerateEncryptStr();
-			exit();
-		}
-		else
-		{
+//		if ( 'refresh' == $sOp )
+//		{
+//			//
+//			//	output a random string
+//			//
+//			echo $this->GenerateEncryptStr();
+//			exit();
+//		}
+//		else
+//		{
 			//
 			//	generate a image
 			//
@@ -78,7 +78,7 @@ class CCaptcha
 			{
 				return $cDrawImg->GenerateOutputImg( $sRandomStr );
 			}
-		}
+//		}
 	}
 
 	//
