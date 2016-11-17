@@ -15,7 +15,7 @@ class CDrawImage
 
 	//	per sec to validate, the generated time of the watermark should be between them
 	var $m_nMinDelay	= 3;
-	var $m_nMaxDelay	= 1800;	//	30 minutes = 30*60 seconds = 1800
+	var $m_nMaxDelay	= 1800;		//	30 minutes = 30 * 60 seconds = 1800
 
 	//	how many noise point as you wish
 	var $m_nNoise		= 30;
@@ -49,33 +49,42 @@ class CDrawImage
 
 	//
 	//	@ Public
-	//	generate image for output
+	//	generate image and return image buffer
 	//
-	public function GenerateOutputImg
+	public function GetImageBuffer
 	(
 		$sDisplayStr,
 		$nImgWidth	= 160,
 		$nImgHeight	= 45,
 		$arrBgColor	= [],
-		$arrBorderColor	= []
+		$arrBorderColor	= [],
+		$nImgType	= IMAGETYPE_JPEG
 	)
 	{
-		header( "Content-type: image/jpeg" );
+		$vRet		= '';
 
+		//	...
 		$oOutputImg	= imagecreatetruecolor( $nImgWidth, $nImgHeight );
 
 		$arrBorderColor	= $this->_CheckColor( $arrBorderColor, $oOutputImg, 0 );
 		$arrBgColor	= $this->_CheckColor( $arrBgColor, $oOutputImg, 255 );
 
-		//	画一矩形并填充
+		//
+		//	draw a rectangle and fill with color
+		//
 		imagefilledrectangle( $oOutputImg, 0, 0, $nImgWidth, $nImgHeight, $arrBgColor );
 
+		//
 		//	draw the borders
+		//
 		imagefilledrectangle( $oOutputImg, 0, 0, $nImgWidth, 0, $arrBorderColor );
 		imagefilledrectangle( $oOutputImg, $nImgWidth - 1, 0, $nImgWidth - 1, $nImgHeight - 1, $arrBorderColor );
 		imagefilledrectangle( $oOutputImg, 0, 0, 0, $nImgHeight - 1, $arrBorderColor );
 		imagefilledrectangle( $oOutputImg, 0, $nImgHeight - 1, $nImgWidth, $nImgHeight - 1, $arrBorderColor );
 
+		//
+		//	font path
+		//
 		$sFontPath	= dirname( dirname( __FILE__ ) ) . '/fonts/';
 
 		$nMinAngle	= -35;
@@ -122,25 +131,52 @@ class CDrawImage
 		//	...
 		$this->_GenerateNoise( $oOutputImg, $nImgWidth, $nImgHeight, $arrColor );
 
-		return @ imagejpeg( $oOutputImg );
+		//
+		//	imageXXX() only has two options, save as a file, or send to the browser.
+		//	It does not provide you the oppurtunity to manipulate the final GIF/JPG/PNG file stream
+		//	So I start the output buffering, use imageXXX() to output the data stream to the browser,
+		//	get the contents of the stream, and use clean to silently discard the buffered contents.
+		//
+		ob_start();
+
+		switch ( $nImgType )
+		{
+			case IMAGETYPE_GIF :
+				@ imagegif( $oOutputImg );
+				break;
+			case IMAGETYPE_JPEG :
+				@ imagejpeg( $oOutputImg, NULL, 70 );	//	70% quality
+				break;
+			case IMAGETYPE_PNG :
+				@ imagepng( $oOutputImg, NULL, 0 );	//	no compression
+				break;
+			default:
+				break;
+		}
+
+		//	...
+		$vRet = ob_get_contents();
+		ob_end_clean();
+
+		return $vRet;
 	}
 
-	public function GenerateEncryptStr( $strLength = 4, $onlySmallLetters = false, $onlyNumbers = true )
+	public function GetEncryptedGen( $nLength = 4, $bOnlySmallLetters = false, $bOnlyNumbers = true )
 	{
-		$hCrypter	= $this->_GetCryptHandler();
+		$hEncryptor	= $this->_GetCryptHandler();
 
-		$sStr		= $this->_GenerateRandomString( $strLength, $onlySmallLetters, $onlyNumbers );
-		$sCap		= $hCrypter->CryptString( $sStr );
-		$sTime		= $hCrypter->CryptString( time() );
-		$sIp		= $hCrypter->CryptString( $this->_GetRemoteAddr() );
+		$sStr		= $this->_GenerateRandomString( $nLength, $bOnlySmallLetters, $bOnlyNumbers );
+		$sCap		= $hEncryptor->CryptString( $sStr );
+		$sTime		= $hEncryptor->CryptString( time() );
+		$sIp		= $hEncryptor->CryptString( $this->_GetRemoteAddr() );
 
 		return rawurlencode( $sCap . '.' . $sIp . '.' . $sTime );
 	}
 
-	public function VerifyInputStr
+	public function VerifyInputWithEncryptedGen
 	(
-		$sInputStr,
-		$sVerifyStr,
+		$sInputCode,
+		$sEncryptedGen,
 		$bCaseSensitive	= false,
 		$nMinDelay	= 0,
 		$nMaxDelay	= 0
@@ -148,22 +184,22 @@ class CDrawImage
 	{
 		//
 		//	sInputStr	- [in] 用户输入的串
-		//	$sVerifyStr	- [in] 系统生成的校验串
-		//	$bCaseSensitive	- [in/opt]
-		//	$nMinDelay	- [in/opt]
-		//	$nMaxDelay	- [in/opt]
+		//	sEncryptedGen	- [in] 系统生成的校验串
+		//	bCaseSensitive	- [in/opt]
+		//	nMinDelay	- [in/opt]
+		//	nMaxDelay	- [in/opt]
 		//
-		if ( '' == $sInputStr || '' == $sVerifyStr )
+		if ( ! CLib::IsExistingString( $sInputCode ) || ! CLib::IsExistingString( $sEncryptedGen ) )
 		{
 			return false;
 		}
 
 		//	...
 		$bRet	= false;
-		$hCrypter	= $this->_GetCryptHandler();
+		$hEncryptor	= $this->_GetCryptHandler();
 
 		//	...
-		$arrVerifyStr	= explode( '.', rawurldecode( $sVerifyStr ) );
+		$arrVerifyStr	= explode( '.', rawurldecode( $sEncryptedGen ) );
 		if ( is_array( $arrVerifyStr ) && 3 == count( $arrVerifyStr ) )
 		{
 			$sEn	= isset( $arrVerifyStr[ 0 ] ) ? $arrVerifyStr[ 0 ] : '';
@@ -180,20 +216,22 @@ class CDrawImage
 			}
 			if ( false == $bCaseSensitive )
 			{
-				$sInputStr	= strtolower( $sInputStr );
-				$sVerifyStr	= strtolower( $sVerifyStr );
+				$sInputCode	= strtolower( $sInputCode );
+				$sEncryptedGen	= strtolower( $sEncryptedGen );
 			}
 
-			if ( '' != $sEn && '' != $sIp && '' != $sTime )
+			if ( CLib::IsExistingString( $sEn ) &&
+				CLib::IsExistingString( $sIp ) &&
+				CLib::IsExistingString( $sTime ) )
 			{
 				$sRemoteAddr	= $this->_GetRemoteAddr();
 				$nRemoteAddrLen	= strlen( $sRemoteAddr );
 
-				$sDecryptedEn	= $hCrypter->DecryptString( $sEn );
-				$sDecryptedIp	= $hCrypter->DecryptString( $sIp );
-				$nDecryptedTime = intval( $hCrypter->DecryptString( $sTime ) );
+				$sDecryptedEn	= $hEncryptor->DecryptString( $sEn );
+				$sDecryptedIp	= $hEncryptor->DecryptString( $sIp );
+				$nDecryptedTime = intval( $hEncryptor->DecryptString( $sTime ) );
 
-				if ( $sInputStr == $sDecryptedEn &&
+				if ( $sInputCode == $sDecryptedEn &&
 					0 == strncmp( $sRemoteAddr, $sDecryptedIp, $nRemoteAddrLen ) )
 				{
 					if ( ( $nDecryptedTime + $nMinDelay <= time() ) && ( $nDecryptedTime + $nMaxDelay >= time() ) )
@@ -218,8 +256,8 @@ class CDrawImage
 			$sEnStr = isset( $arrCryptedStr[ 0 ] ) ? $arrCryptedStr[ 0 ] : '';
 			if ( '' != $sEnStr )
 			{
-				$hCrypter	= $this->_GetCryptHandler();
-				$sRet		= $hCrypter->DecryptString( $sEnStr );
+				$hEncryptor	= $this->_GetCryptHandler();
+				$sRet		= $hEncryptor->DecryptString( $sEnStr );
 			}
 		}
 

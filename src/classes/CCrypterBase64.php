@@ -2,6 +2,8 @@
 
 namespace dekuan\decaptcha;
 
+use dekuan\delib\CLib;
+
 
 /**
  *	class of CCrypterBase64
@@ -22,7 +24,7 @@ class CCrypterBase64 implements ICrypter
 
 	public function CryptString( $sStr )
 	{
-		if ( ! is_string( $sStr ) || 0 == strlen( $sStr ) )
+		if ( ! CLib::IsExistingString( $sStr ) )
 		{
 			return '';
 		}
@@ -52,7 +54,7 @@ class CCrypterBase64 implements ICrypter
 
 	public function DecryptString( $sStr )
 	{
-		if ( ! is_string( $sStr ) || 0 == strlen( $sStr ) )
+		if ( ! CLib::IsExistingString( $sStr ) )
 		{
 			return '';
 		}
