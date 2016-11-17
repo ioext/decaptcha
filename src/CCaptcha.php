@@ -16,6 +16,13 @@ class CCaptcha
 	//	...
 	const ARR_SUPPORTED_IMAGE_TYPE	= [ IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG ];
 
+	//
+	//	captcha code will be checked as valid at least in 3 seconds before its created,
+	//	and in 1800 seconds after its created
+	//
+	const DEFAULT_DELAY_MIN		= 3;		//	min value of delay
+	const DEFAULT_DELAY_MAX		= 1800;		//	max value of delay, 30 minutes = 30 * 60 seconds = 1800
+
 
 	public function __construct( $sCryptSeed )
 	{
@@ -140,7 +147,14 @@ class CCaptcha
 	//
 	//	Check if the input code is a valid captcha
 	//
-	public function Check( $sInputCode, $sEncryptedGen, $bCaseSensitive = false, $nMinDelay = 0, $nMaxDelay = 0 )
+	public function Check
+	(
+		$sInputCode,
+		$sEncryptedGen,
+		$bCaseSensitive = false,
+		$nMinDelay = self::DEFAULT_DELAY_MIN,
+		$nMaxDelay = self::DEFAULT_DELAY_MAX
+	)
 	{
 		if ( ! CLib::IsExistingString( $sInputCode ) || ! CLib::IsExistingString( $sEncryptedGen ) )
 		{
