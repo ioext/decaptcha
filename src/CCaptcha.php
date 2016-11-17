@@ -46,6 +46,7 @@ class CCaptcha
 	{
 		return ( is_numeric( $nImgType ) && in_array( $nImgType, self::ARR_SUPPORTED_IMAGE_TYPE ) );
 	}
+
 	public function GetDefaultImageType()
 	{
 		return IMAGETYPE_JPEG;

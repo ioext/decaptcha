@@ -10,13 +10,12 @@ use dekuan\delib\CLib;
  */
 class CDrawImage
 {
-
 	//	specify your own seed here
 	var $m_sCryptSeed	= 'dekuan';
 
 	//	per sec to validate, the generated time of the watermark should be between them
 	var $m_nMinDelay	= 3;
-	var $m_nMaxDelay	= 1800;	//	30 minutes = 30*60 seconds = 1800
+	var $m_nMaxDelay	= 1800;		//	30 minutes = 30 * 60 seconds = 1800
 
 	//	how many noise point as you wish
 	var $m_nNoise		= 30;
