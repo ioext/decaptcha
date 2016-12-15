@@ -87,6 +87,12 @@ class CCaptcha
 		return $sRet;
 	}
 
+	public function GetGen( $nLength = 4, $bOnlySmallLetters = false, $bOnlyNumbers = true )
+	{
+		$cDrawImg = new CDrawImage( $this->m_sCryptSeed );
+		return $cDrawImg->GetGen( $nLength, $bOnlySmallLetters, $bOnlyNumbers );
+	}
+
 	public function GetEncryptedGen( $nLength = 4, $bOnlySmallLetters = false, $bOnlyNumbers = true )
 	{
 		$cDrawImg = new CDrawImage( $this->m_sCryptSeed );
@@ -95,11 +101,39 @@ class CCaptcha
 
 	public function GetImageResponse( $sEncryptedStr = '', $nImgWidth = -1, $nImgHeight = -1, $nImgType = IMAGETYPE_JPEG )
 	{
-		$cResponse	= new Response();
-		$cDrawImg	= new CDrawImage( $this->m_sCryptSeed );
+		return $this->GetImageResponseByEncryptedGen( $sEncryptedStr, $nImgWidth, $nImgHeight, $nImgType );
+	}
+
+	public function GetImageResponseByEncryptedGen( $sEncryptedStr = '', $nImgWidth = -1, $nImgHeight = -1, $nImgType = IMAGETYPE_JPEG )
+	{
+		if ( ! CLib::IsExistingString( $sEncryptedStr ) )
+		{
+			return null;
+		}
 
 		//	...
-		$sRandomStr	= isset( $sEncryptedStr ) ? $sEncryptedStr : '';
+		$oRet		= null;
+		$cDrawImg	= new CDrawImage( $this->m_sCryptSeed );
+		$sGen		= $cDrawImg->DecryptGen( $sEncryptedStr );
+		if ( CLib::IsExistingString( $sGen ) )
+		{
+			$oRet = $this->GetImageResponseByGen( $sGen, $nImgWidth, $nImgHeight, $nImgType );
+		}
+
+		//	...
+		return $oRet;
+	}
+
+	public function GetImageResponseByGen( $sGen = '', $nImgWidth = -1, $nImgHeight = -1, $nImgType = IMAGETYPE_JPEG )
+	{
+		if ( ! CLib::IsExistingString( $sGen ) )
+		{
+			return null;
+		}
+
+		//	...
+		$cResponse	= new Response();
+		$cDrawImg	= new CDrawImage( $this->m_sCryptSeed );
 
 		$vImageBuffer	= '';
 		$nImgType	= $this->IsSupportedImageType( $nImgType ) ? $nImgType : $this->GetDefaultImageType();
@@ -111,16 +145,11 @@ class CCaptcha
 		$nImgWidth	= intval( $nImgWidth );
 		$nImgHeight	= intval( $nImgHeight );
 
-		//
-		//	generate a image
-		//
-		$sRandomStr = $cDrawImg->PickupStringForImg( $sRandomStr );
-
 		if ( $nImgWidth > 0 && $nImgHeight > 0 )
 		{
 			$crBorder	= [ 'color' => [ 'r' => 0xff, 'g' => 0xff, 'b' => 0xff ] ];
 			$crBg		= [ 'color' => [ 'r' => 0xff, 'g' => 0xff, 'b' => 0xff ] ];
-			$vImageBuffer	= $cDrawImg->GetImageBuffer( $sRandomStr, $nImgWidth, $nImgHeight, $crBg, $crBorder, $nImgType );
+			$vImageBuffer	= $cDrawImg->GetImageBuffer( $sGen, $nImgWidth, $nImgHeight, $crBg, $crBorder, $nImgType );
 		}
 		else
 		{
@@ -128,7 +157,7 @@ class CCaptcha
 			$sMimeType	= $this->GetMimeTypeByImageType( $nImgType );
 
 			//	using default configuration
-			$vImageBuffer	= $cDrawImg->GetImageBuffer( $sRandomStr );
+			$vImageBuffer	= $cDrawImg->GetImageBuffer( $sGen );
 		}
 
 		//

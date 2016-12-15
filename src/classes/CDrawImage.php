@@ -161,6 +161,11 @@ class CDrawImage
 		return $vRet;
 	}
 
+	public function GetGen( $nLength = 4, $bOnlySmallLetters = false, $bOnlyNumbers = true )
+	{
+		return $this->_GenerateRandomString( $nLength, $bOnlySmallLetters, $bOnlyNumbers );
+	}
+
 	public function GetEncryptedGen( $nLength = 4, $bOnlySmallLetters = false, $bOnlyNumbers = true )
 	{
 		$hEncryptor	= $this->_GetCryptHandler();
@@ -245,19 +250,24 @@ class CDrawImage
 		return $bRet;
 	}
 
-	public function PickupStringForImg( $sCryptedStr )
+	public function DecryptGen( $sEncryptedStr )
 	{
 		$sRet = '1108';
 
-		//	...
-		$arrCryptedStr = explode( '.', $sCryptedStr );
-		if ( is_array( $arrCryptedStr ) && count( $arrCryptedStr ) > 0 )
+		if ( CLib::IsExistingString( $sEncryptedStr ) )
 		{
-			$sEnStr = isset( $arrCryptedStr[ 0 ] ) ? $arrCryptedStr[ 0 ] : '';
-			if ( '' != $sEnStr )
+			$arrCryptedStr = explode( '.', $sEncryptedStr );
+			if ( is_array( $arrCryptedStr ) && count( $arrCryptedStr ) > 0 )
 			{
-				$hEncryptor	= $this->_GetCryptHandler();
-				$sRet		= $hEncryptor->DecryptString( $sEnStr );
+				$sEnStr = isset( $arrCryptedStr[ 0 ] ) ? $arrCryptedStr[ 0 ] : '';
+				if ( '' != $sEnStr )
+				{
+					$hEncryptor	= $this->_GetCryptHandler();
+					if ( $hEncryptor )
+					{
+						$sRet = $hEncryptor->DecryptString( $sEnStr );
+					}
+				}
 			}
 		}
 
