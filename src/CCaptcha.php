@@ -166,6 +166,7 @@ class CCaptcha
 		$cResponse->setContent( $vImageBuffer );
 		$cResponse->setStatusCode( Response::HTTP_OK );
 		$cResponse->headers->set( 'Content-Type', $sMimeType );
+		$cResponse->headers->set( 'Cache-Control', 'no-store' );
 
 		//
 		//	prints the HTTP headers followed by the content
