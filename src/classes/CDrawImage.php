@@ -1,8 +1,8 @@
 <?php
 
-namespace dekuan\decaptcha;
+namespace ioext\decaptcha;
 
-use dekuan\delib\CLib;
+use ioext\delib\CLib;
 
 
 /**
@@ -11,7 +11,7 @@ use dekuan\delib\CLib;
 class CDrawImage
 {
 	//	specify your own seed here
-	var $m_sCryptSeed	= 'dekuan';
+	var $m_sCryptSeed	= 'ioext';
 
 	//	per sec to validate, the generated time of the watermark should be between them
 	var $m_nMinDelay	= 3;

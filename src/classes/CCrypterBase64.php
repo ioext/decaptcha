@@ -1,8 +1,8 @@
 <?php
 
-namespace dekuan\decaptcha;
+namespace ioext\decaptcha;
 
-use dekuan\delib\CLib;
+use ioext\delib\CLib;
 
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace dekuan\decaptcha;
+namespace ioext\decaptcha;
 
 
 /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace dekuan\decaptcha;
+namespace ioext\decaptcha;
 
 use Symfony\Component\HttpFoundation\Response;
-use dekuan\delib\CLib;
+use ioext\delib\CLib;
 
 
 /**
@@ -11,7 +11,7 @@ use dekuan\delib\CLib;
  */
 class CCaptcha
 {
-	var $m_sCryptSeed	= 'dekuan-seed';
+	var $m_sCryptSeed	= 'ioext-seed';
 
 	//	...
 	const ARR_SUPPORTED_IMAGE_TYPE	= [ IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG ];

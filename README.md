@@ -1,2 +1,2 @@
 # decaptcha
-Captcha library by DeKuan, Inc.
+Captcha library by ioext, Inc.

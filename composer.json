@@ -1,13 +1,13 @@
 {
-	"name"		: "dekuan/decaptcha",
-	"description"	: "Captcha library by DeKuan, Inc.",
+	"name"		: "ioext/decaptcha",
+	"description"	: "Captcha library by ioext, Inc.",
 	"type"		: "library",
 	"license"	: "proprietary",
 	"authors" :
 	[
 		{
 			"name" : "liuqixing",
-			"email" : "liuqixing@dekuan.org"
+			"email" : "liuqixing@ioext.org"
 		}
 	],
 	"extra":
@@ -21,7 +21,7 @@
 	{
 		"php"			: ">=5.3.0",
 		"symfony/http-kernel"	: "2.7.*",
-		"dekuan/delib"		: ">1.0"
+		"ioext/delib"		: ">1.0"
 	},
 	"require-dev" :
 	{
@@ -29,10 +29,10 @@
 	},
 	"autoload":
 	{
-		"psr-4" : { "dekuan\\" : "src" }
+		"psr-4" : { "ioext\\decaptcha\\" : "src/" }
 	},
 	"autoload-dev" :
 	{
-		"psr-4" : { "dekuan\\" : "src" }
+		"psr-4" : { "ioext\\decaptcha\\" : "src/" }
 	}
 }
